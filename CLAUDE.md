@@ -50,6 +50,8 @@ Everything goes through `./kodev` (it auto-fetches submodules when missing):
 
 `make static-check` runs luacheck alone. `make po` fetches translations (needed by `./kodev release`, skip with `-i`).
 
+`python tools/event_xref.py` regenerates `doc/events_xref.md` — the committed event-dispatch cross-reference (event name ↔ emit sites ↔ `on*` handler definitions, including dispatcher actions and `key_events`/`ges_events` tables). Consult it instead of grepping for string-composed event dispatch; regenerate after adding or renaming events/handlers (`--check` verifies it is current).
+
 ### iOS build (macOS host)
 
 ```sh
