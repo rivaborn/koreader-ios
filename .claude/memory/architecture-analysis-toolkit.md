@@ -30,6 +30,18 @@ homelab 3090) has NOT been run yet** — runbook below.
    LLM_NUM_CTX=65536
    LLM_THINK=true
    LLM_TIMEOUT=900
+   # REQUIRED with LLMConfig older than 9e55316: /api/status "utilization_pct"
+   # was VRAM occupancy, not compute load, so the loaded 20 GB model alone read
+   # as ~86% busy and the GPU idle gate's default 10% threshold deadlocked the
+   # run at 0/N forever (worse, toolkit < 16a3b95 buffered the workers'
+   # "[gpu-idle] waiting" messages until job completion, so the stall looked
+   # like a silent hang). LLMConfig 9e55316+ reports real compute utilization in
+   # that field (VRAM moved to "vram_pct") — but keep 95 anyway: nvidia-smi's
+   # util is a ~1 s trailing window, so a check fired right after the previous
+   # file's generation can still read high and cost a 300 s wait per file.
+   # 95 still yields on model swaps / active gateway jobs; GPU_IDLE_CHECK=0
+   # disables the gate entirely.
+   GPU_BUSY_THRESHOLD=95
    # Optional: ntfy topic URL for phone pushes + 15-min progress heartbeats
    #NOTIFY_URL=
    ```
