@@ -7,4 +7,4 @@ project memory".
 
 - [Fork maintenance](fork-maintenance.md) — upstream merge-base `240f591d3`, the iOS commit series, the fork-diff command, missing-tags/VERSION gotcha
 - [iOS background work](ios-background-work.md) — no-fork constraint: the KO_IOS gates and the UIManager time-slicing pattern to reuse
-- [Architecture-analysis toolkit](architecture-analysis-toolkit.md) — running LocalLLM_Code_Analysis against this repo (koreader preset, lua profile, RAM constraints, orphaned-server gotcha)
+- [Architecture-analysis toolkit](architecture-analysis-toolkit.md) — full runbook: extraction + 15-19h frontend pipeline on any machine (.env template, commands, RAM/orphan/refs gotchas); full frontend run NOT yet executed
