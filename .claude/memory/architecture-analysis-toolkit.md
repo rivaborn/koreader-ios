@@ -1,13 +1,26 @@
 # Analyzing this repo with LocalLLM_Code_Analysis
 
-Verified: 2026-07-10 @ toolkit main (profile-based multi-language support; koreader preset, lua profile)
+Verified: 2026-07-11 @ toolkit e8a4525 (koreader preset, lua profile)
 
 The LocalLLM_Code_Analysis toolkit (github.com/rivaborn/LocalLLM_Code_Analysis,
 locally `C:\Coding\rivaborn\LocalLLM_Code_Analysis`) generates LSP-extracted
-context + LLM architecture docs for this repo's Lua frontend. Extraction and a
-bounded doc run (13 container widgets) were validated end-to-end on ROGSAG on
-2026-07-09/10; the **full frontend doc run (~350 files, est. 15–19 h on the
-homelab 3090) has NOT been run yet** — runbook below.
+context + LLM architecture docs for this repo's Lua frontend. The **full
+frontend run completed 2026-07-11 on ALIENWARESAGAPT** (extraction + a bounded
+13-widget run were validated earlier on ROGSAG, 2026-07-09/10):
+
+- **19h23m31s total, zero failures** — archgen 9h39m (325 done / 23 skip),
+  xref 3s, graph 1s, overview 7m52s, pass2 9h36m (all 348 files; run WITHOUT
+  `-Top 50`, which is what doubles it). Steady ~1.8 min/file over the full run.
+- Outputs (gitignored): 348 Pass-1 + 348 Pass-2 docs under
+  `architecture\frontend\` (`<path>.md` / `<path>.pass2.md`), plus the graph,
+  overview, and `architecture\Run Report.md`.
+- Getting there required two fixes now upstream: LLMConfig `9e55316`
+  (utilization_pct semantics — see the .env note below) and toolkit `16a3b95`
+  + `e8a4525` (live worker output; strict-mode-safe — parents run
+  `Set-StrictMode -Version Latest`, so dot-sourced helpers must not read
+  never-assigned variables).
+
+Runbook below for rerunning on any machine.
 
 ## One-time setup on a new machine (Windows / PowerShell 5.1)
 
@@ -71,7 +84,7 @@ powershell -File <toolkit>\llm_scripts\serena_extract.ps1 -Preset koreader -Work
   ~100 files). To preserve it instead of re-extracting, copy the whole
   `architecture\` dir to the new machine — otherwise just re-extract.
 
-## Step 2 — full pipeline over the frontend (LLM; est. 15–19 h)
+## Step 2 — full pipeline over the frontend (LLM; measured 19h23m without -Top 50)
 
 ```powershell
 cd <this repo>
@@ -80,17 +93,16 @@ powershell -File <toolkit>\llm_scripts\run_pipeline.ps1 -TargetDir frontend `
 ```
 
 - `-SkipSerena` because step 1 already ran; `-Jobs 1` is forced on the ollama
-  backend anyway; `-Top 50` bounds Pass 2 to the 50 highest-scoring files
-  (drop the flag only if you want Pass 2 over everything — roughly doubles
-  the runtime).
+  backend anyway; `-Top 50` bounds Pass 2 to the 50 highest-scoring files.
+  The 2026-07-11 run dropped the flag (Pass 2 over everything): Pass 1 and
+  Pass 2 cost ~9h35m EACH, so `-Top 50` would cut roughly half the wall clock.
 - The orchestrator pre-loads `qwen3.6:27b-64k` onto the 3090 via the gateway,
   runs archgen → xref → graph → overview → pass2, and writes
   `architecture\Run Report.md`. It completes a stage, lists any failed files,
   and stops after the first stage WITH failures — rerun the same command to
   resume (archgen/pass2 are hash-incremental; done files skip).
-- ~2.5–3 min/file was the observed rate (thinking model). 13 container-widget
-  docs already exist on ROGSAG (copied with `architecture\` if transferred;
-  regenerated otherwise).
+- ~1.8 min/file was the sustained full-run rate (thinking model; the earlier
+  bounded-run estimate of 2.5–3 min/file proved pessimistic).
 - Set `NOTIFY_URL` in `.env` for start/per-stage/complete pushes + 15-min
   progress heartbeats — recommended for an overnight run.
 

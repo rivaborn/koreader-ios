@@ -7,4 +7,4 @@ project memory".
 
 - [Fork maintenance](fork-maintenance.md) — upstream merge-base `240f591d3`, the iOS commit series, the fork-diff command, missing-tags/VERSION gotcha
 - [iOS background work](ios-background-work.md) — no-fork constraint: the KO_IOS gates and the UIManager time-slicing pattern to reuse
-- [Architecture-analysis toolkit](architecture-analysis-toolkit.md) — full runbook: extraction + 15-19h frontend pipeline on any machine (.env template, commands, GPU-idle-gate/RAM/orphan/refs gotchas); full frontend run NOT yet executed
+- [Architecture-analysis toolkit](architecture-analysis-toolkit.md) — full runbook: extraction + frontend pipeline on any machine (.env template, commands, GPU-idle-gate/RAM/orphan/refs gotchas); full run completed 2026-07-11 (19h23m, 0 failures, 348 docs/pass)
